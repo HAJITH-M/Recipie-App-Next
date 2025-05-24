@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { deleteCookie } from 'cookies-next';
 import useSWR from 'swr';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import path from 'path';
 
@@ -22,10 +22,23 @@ const RecipeCard = ({recipe}: {recipe: RecipeProps}) =>{
   const [imageLoaded, setImageLoaded] = useState(false);
   const [like, setLike] = useState(false);
 
-  const handleLike = () =>{
+  const handleLike = () => {
     setLike(!like);
+    if (!like) {
+      localStorage.setItem(`${recipe.id}`, `${recipe.name}`);
+    } else {
+      localStorage.removeItem(`${recipe.id}`);
+    }
   }
 
+  useEffect(() => {
+    const recid = localStorage.getItem(`${recipe.id}`);
+    if (recid) {
+      setLike(true);
+    }
+    
+  }, []);
+  
   return( 
     <div className="opacity-0 animate-fade-in bg-gradient-to-tr from-emerald-50 to-teal-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 h-full border border-emerald-100 dark:border-slate-700"> 
       <div className="p-5 flex flex-col h-full relative">
