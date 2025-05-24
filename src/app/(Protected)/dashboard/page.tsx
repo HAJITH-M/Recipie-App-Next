@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { deleteCookie } from 'cookies-next';
 import useSWR from 'swr';
 import Image from 'next/image';
+import { useState } from 'react';
+import Navbar from '@/components/Navbar';
+import path from 'path';
 
 interface RecipeProps{
   id: number;
@@ -16,55 +19,94 @@ interface RecipeProps{
 }
 
 const RecipeCard = ({recipe}: {recipe: RecipeProps}) =>{ 
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [like, setLike] = useState(false);
+
+  const handleLike = () =>{
+    setLike(!like);
+  }
+
   return( 
-    <div className="bg-gradient-to-br from-white via-[#FDF1F3] to-[#F8E6E9] dark:from-[#2D0912] dark:via-[#4A1522] dark:to-[#67001F] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 h-full"> 
-      <div className="p-3 sm:p-4 lg:p-6 flex flex-col h-full relative backdrop-blur-sm bg-white/5">
-        <div className="flex justify-between items-start mb-2">
-          <span className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium ${ 
-            recipe.difficulty === 'Easy' ? 'bg-[#F4CDD4] text-[#67001F] dark:bg-[#F4CDD4] dark:text-[#67001F]' : 
-            recipe.difficulty === 'Medium' ? 'bg-[#B31B41] text-white dark:bg-[#B31B41] dark:text-white' : 
-            'bg-[#67001F] text-white dark:bg-[#67001F] dark:text-white' 
+    <div className="opacity-0 animate-fade-in bg-gradient-to-tr from-emerald-50 to-teal-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 h-full border border-emerald-100 dark:border-slate-700"> 
+      <div className="p-5 flex flex-col h-full relative">
+        <div className="flex justify-between items-start mb-4">
+          <span className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide ${ 
+            recipe.difficulty === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 
+            recipe.difficulty === 'Medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 
+            'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200' 
           }`}> 
             {recipe.difficulty} 
           </span>
-          <button className="text-[#B31B41] hover:text-[#67001F] dark:text-[#F4CDD4] dark:hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+        
+        {/* Like Button */}
+          <button
+            onClick={handleLike}
+            className={`p-2 rounded-full transition-colors cursor-pointer ${
+              like
+                ? 'text-rose-600 bg-rose-100 dark:text-rose-300 dark:bg-rose-900/30'
+                : 'text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/30'
+            }`}
+          >
+            {like ? (
+              // Filled Heart
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+                  4.42 3 7.5 3c1.74 0 3.41 0.81 
+                  4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 
+                  3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 
+                  11.54L12 21.35z" />
+              </svg>
+            ) : (
+              // Outlined Heart
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            )}
           </button>
+          {/* End Like Button */}
+
         </div>
         <div className="flex-grow flex flex-col items-center">
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto mb-3 sm:mb-4"> 
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F4CDD4] to-[#B31B41] dark:from-[#B31B41] dark:to-[#67001F] rounded-full shadow-inner"></div> 
-            <div className="absolute inset-2 rounded-full overflow-hidden ring-2 sm:ring-4 ring-[#B31B41] dark:ring-[#F4CDD4] shadow-lg"> 
+          <div className="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto mb-6"> 
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-200/30 to-teal-200/30 dark:from-emerald-900/30 dark:to-teal-900/30 blur-lg"></div>
+            <div className="absolute inset-0 rounded-full overflow-hidden ring-4 ring-emerald-200 dark:ring-emerald-700 ring-offset-4 ring-offset-white dark:ring-offset-slate-900 shadow-[0_0_25px_rgba(16,185,129,0.3)]">
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-emerald-50 dark:bg-slate-800">
+                  <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
               <Image 
                 src={recipe.image} 
                 fill 
-                className="object-cover" 
-                alt={recipe.name} 
+                className={`object-cover transition-all duration-500 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+                alt={recipe.name}
+                onLoad={() => setImageLoaded(true)}
               /> 
             </div> 
           </div> 
-          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-[#67001F] dark:text-white text-center mb-2 sm:mb-3 break-words hyphens-auto px-2">{recipe.name}</h2> 
+          <h2 className="text-xl lg:text-xl font-bold text-slate-800 dark:text-white text-center mb-4 break-words hyphens-auto px-2 leading-tight">{recipe.name}</h2> 
         </div>
-        <div className="flex flex-col items-center w-full mt-auto space-y-2 sm:space-y-3">
-          <div className="flex items-center justify-center mb-1.5 sm:mb-2"> 
-            <span className="text-xs sm:text-sm lg:text-base text-[#B31B41] dark:text-[#F4CDD4]">{recipe.cuisine} Cuisine</span> 
+        <div className="flex flex-col items-center w-full mt-auto space-y-4">
+          <div className="flex items-center justify-center"> 
+            <span className="text-base lg:text-lg font-medium text-emerald-600 dark:text-emerald-400">{recipe.cuisine} Cuisine</span> 
           </div> 
-          <div className="flex items-center justify-around w-full text-[#B31B41] dark:text-[#F4CDD4] text-xs sm:text-sm gap-2 flex-wrap"> 
-            <div className="flex items-center"> 
-              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> 
+          <div className="flex items-center justify-around w-full text-slate-700 dark:text-slate-300 text-xs lg:text-sm gap-2"> 
+            <div className="flex items-center flex-shrink-0 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-full"> 
+              <svg className="w-4 h-4 text-emerald-500 dark:text-emerald-400 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /> 
               </svg> 
               <span>{recipe.cookTimeMinutes} mins</span> 
             </div> 
-            <div className="flex items-center"> 
-              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> 
+            <div className="flex items-center flex-shrink-0 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-full"> 
+              <svg className="w-4 h-4 text-emerald-500 dark:text-emerald-400 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /> 
               </svg> 
               <span>{recipe.caloriesPerServing} cal/serving</span> 
             </div> 
-            
           </div> 
         </div> 
       </div> 
@@ -94,36 +136,37 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-[#FDF1F3] to-[#F8E6E9] dark:from-[#67001F] dark:via-[#B31B41] dark:to-[#F4CDD4] backdrop-blur-sm bg-opacity-95 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6 lg:p-10">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-white dark:text-[#F4CDD4] text-center sm:text-left">Recipe Collection</h1>
+        <Navbar/>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mb-10">
+          <h1 className="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">Recipe Collection</h1>
           <button
             onClick={handleLogout}
-            className="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-[#B31B41] text-white rounded-lg hover:bg-[#67001F] transition-colors"
+            className="px-6 py-3 text-base font-medium bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl hover:from-rose-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             Logout
           </button>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {[...Array(8)].map((_, index) => (
-              <div key={index} className="animate-pulse bg-indigo-800/20 rounded-xl h-48 sm:h-64 lg:h-72"></div>
+              <div key={index} className="animate-pulse bg-emerald-100/50 dark:bg-slate-800/50 rounded-2xl h-96"></div>
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-6 sm:py-8">
-            <div className="text-rose-500 text-base sm:text-lg lg:text-xl">Failed to load recipes</div>
+          <div className="text-center py-12 bg-white/50 dark:bg-slate-800/50 rounded-2xl backdrop-blur-sm">
+            <div className="text-rose-500 dark:text-rose-400 text-xl font-medium mb-4">Failed to load recipes</div>
             <button
               onClick={() => window.location.reload()}
-              className="mt-3 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-600 hover:to-teal-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Try Again
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {data?.recipes?.map((recipe: RecipeProps) => (
               <RecipeCard key={recipe.id} recipe={recipe} />
             ))}
