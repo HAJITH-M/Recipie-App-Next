@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
-import RouteGuard from "./Components/routeGuard";
+import RouteGuard from "../components/routeGuard";
 import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning >
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-indigo-50 via-pink-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900`}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem >
         <RouteGuard>{children}</RouteGuard>
       </ThemeProvider>
