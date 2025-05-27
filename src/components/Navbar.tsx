@@ -38,13 +38,13 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="bg-background w-full border-b">
+    <nav className="bg-amber-50 dark:bg-black w-full border-b border-amber-200 dark:border-amber-800/50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-10 h-10 overflow-hidden rounded-full">
+              <div className="relative w-10 h-10 overflow-hidden rounded-full ring-2 ring-amber-200 dark:ring-amber-800 ring-offset-2 ring-offset-amber-50 dark:ring-offset-amber-950">
                 <Image
                   src="https://ik.imagekit.io/k5gvskw6y/image.png"
                   alt="Recipe App Logo"
@@ -54,7 +54,9 @@ export default function Navbar() {
                   priority
                 />
               </div>
-              <h1 className="text-2xl font-bold text-primary">RecipeApp</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent">
+                RecipeApp
+              </h1>
             </Link>
           </div>
 
@@ -66,15 +68,15 @@ export default function Navbar() {
                   <NavigationMenuItem key={menu.title}>
                     <NavigationMenuLink
                       asChild
-                      className={`${navigationMenuTriggerStyle()} ${pathname === menu.path ? 'text-[#8B0000] font-semibold' : 'text-[#00008B]'} hover:text-[#8B0000]`}
+                      className={`${navigationMenuTriggerStyle()} ${pathname === menu.path ? 'text-indigo-600 dark:text-amber-400 font-semibold bg-indigo-100/50 dark:bg-amber-900/30' : 'text-gray-700 dark:text-amber-300'} hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300`}
                     >
                       <Link href={menu.path}>{menu.title}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
                 <NavigationMenuItem>
-                  <div className="flex items-center gap-2 px-4 py-2 cursor-pointer text-[#00008B]">
-                    <User className="h-4 w-4" />
+                  <div className="flex items-center gap-2 px-4 py-2 cursor-pointer text-gray-700 dark:text-amber-300 hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300">
+                    <User className="h-4 w-4 text-indigo-600 dark:text-amber-400" />
                     <span className="text-sm font-medium">
                       {username || 'Guest'}
                     </span>
@@ -84,7 +86,7 @@ export default function Navbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="cursor-pointer text-[#00008B] hover:text-[#8B0000]"
+                    className="cursor-pointer text-indigo-600 dark:text-amber-400 hover:text-indigo-700 dark:hover:text-amber-300 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300"
                     onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                   >
                     {theme === "light" ? (
@@ -96,7 +98,12 @@ export default function Navbar() {
                   </Button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Button variant="ghost" size="icon" className="cursor-pointer text-[#00008B] hover:text-[#8B0000]" onClick={() => handleLogout(router, setUsername)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer text-indigo-600 dark:text-amber-400 hover:text-indigo-700 dark:hover:text-amber-300 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300"
+                    onClick={() => handleLogout(router, setUsername)}
+                  >
                     <LogOut className="h-4 w-4" />
                     <span className="sr-only">Logout</span>
                   </Button>
@@ -109,62 +116,77 @@ export default function Navbar() {
           <div className="md:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden text-indigo-600 dark:text-amber-400 hover:text-indigo-700 dark:hover:text-amber-300 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg"
+                >
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
-                <SheetTitle className="text-left">Navigation Menu</SheetTitle>
-                <div className="flex flex-col items-start gap-4 pt-4">
-                  <div className="flex items-center gap-2 py-2 px-1">
-                    <User className="h-4 w-4" />
-                    <span className="text-sm font-medium">
+              <SheetContent
+                side="left"
+                className="bg-amber-50/80 dark:bg-amber-950/80 backdrop-blur-sm w-72 border-r border-amber-200 dark:border-amber-800/50"
+              >
+                <div className="flex items-center justify-between mt-5 mb-6">
+                  <SheetTitle className="text-xl ml-2 font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent">
+                    RecipeApp
+                  </SheetTitle>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-indigo-800 dark:bg-amber-900/50">
+                    <User className="h-5 w-5 text-gray-50 dark:text-amber-400" />
+                    <span className="text-sm font-medium text-gray-50 dark:text-amber-300">
                       {username || 'Guest'}
                     </span>
                   </div>
-                  {menus.map((menu) => (
+                  <div className="space-y-2">
+                    {menus.map((menu) => (
+                      <Button
+                        key={menu.title}
+                        variant="ghost"
+                        className={`w-full justify-start text-base font-medium ${pathname === menu.path ? 'text-indigo-600 dark:text-amber-400 bg-indigo-100/50 dark:bg-amber-900/50' : 'text-gray-700 dark:text-amber-300'} hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300`}
+                        onClick={() => setOpen(false)}
+                        asChild
+                      >
+                        <Link href={menu.path}>{menu.title}</Link>
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="space-y-2 border-t border-amber-200 dark:border-amber-800/50">
                     <Button
-                      key={menu.title}
-                      variant="link"
-                      className={`text-base ${pathname === menu.path ? 'text-[#8B0000] font-semibold' : 'text-[#00008B]'}`}
-                      onClick={() => setOpen(false)}
-                      asChild
+                      variant="ghost"
+                      className="w-full justify-start text-base font-medium text-gray-700 dark:text-amber-300 hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300"
+                      onClick={() => {
+                        setTheme(theme === "light" ? "dark" : "light")
+                        setOpen(false)
+                      }}
                     >
-                      <Link href={menu.path}>{menu.title}</Link>
+                      {theme === "light" ? (
+                        <>
+                          <Moon className="h-5 w-5 mr-3 text-indigo-600 dark:text-amber-400" />
+                          Dark Mode
+                        </>
+                      ) : (
+                        <>
+                          <Sun className="h-5 w-5 mr-3 text-indigo-600 dark:text-amber-400" />
+                          Light Mode
+                        </>
+                      )}
                     </Button>
-                  ))}
-                  <Button
-                    variant="link"
-                    className="text-base text-[#00008B]"
-                    onClick={() => {
-                      setTheme(theme === "light" ? "dark" : "light")
-                      setOpen(false)
-                    }}
-                  >
-                    {theme === "light" ? (
-                      <>
-                        <Moon className="h-4 w-4 mr-2" />
-                        Dark Mode
-                      </>
-                    ) : (
-                      <>
-                        <Sun className="h-4 w-4 mr-2" />
-                        Light Mode
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="link"
-                    className="text-base text-[#00008B]"
-                    onClick={() => {
-                      handleLogout(router, setUsername);
-                      setOpen(false);
-                    }}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base font-medium text-gray-700 dark:text-amber-300 hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-indigo-100/30 dark:hover:bg-amber-900/30 rounded-lg transition-all duration-300"
+                      onClick={() => {
+                        handleLogout(router, setUsername)
+                        setOpen(false)
+                      }}
+                    >
+                      <LogOut className="h-5 w-5 mr-3 text-indigo-600 dark:text-amber-400" />
+                      Logout
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

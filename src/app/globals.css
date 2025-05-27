@@ -132,3 +132,16 @@
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #4f46e5, #ec4899);
+  border-radius: 9999px;
+}
+.dark .scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #c084fc, #a78bfa);
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 5px;
+}

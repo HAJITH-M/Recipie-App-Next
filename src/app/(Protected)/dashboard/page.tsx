@@ -1,7 +1,6 @@
 "use client";
 
 import useSWR from "swr";
-import Navbar from "@/components/Navbar";
 import fetcher from "../../../api/fetchers";
 import RecipeCard from "../../../components/RecipieCard";
 import { useState, useEffect } from "react";
@@ -43,7 +42,7 @@ export default function Dashboard() {
     <div className="min-h-screen   lg:p-1">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mb-10 ">
-          <h1 className="text-3xl lg:text-5xl py-1 font-bold bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-purple-400 dark:to-lavender-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl lg:text-5xl py-1 font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent">
             Recipe Collection
           </h1>
           <div className="px-6 w-full sm:w-64">
@@ -96,7 +95,7 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6  lg:gap-8">
+          <div className="grid grid-cols-1 px-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6  lg:gap-8">
             {data?.recipes?.map((recipe: RecipeProps) => (
               <div key={recipe.id}>
                   <RecipeCard  recipe={recipe} />
