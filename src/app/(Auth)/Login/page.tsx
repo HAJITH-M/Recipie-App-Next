@@ -8,23 +8,33 @@ import { User, Lock, ChefHat, CakeSlice } from "lucide-react"
 import Image from "next/image"
 
 const getUser = async (email: string, password: string) => {
-  const res = await fetch('/api/loginapi', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  })
+  try {
+    const res = await fetch('/api/loginapi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
 
-  const data = await res.json()
-  return data
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+
+    const data = await res.json()
+    console.log('API Response:', data) // Debug log
+    return data
+  } catch (error) {
+    console.error('API call failed:', error)
+    throw error
+  }
 }
 
 export default function LoginPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    email: '',
+    userEmail: '',
     userPassword: '',
     error: '',
   })
@@ -33,22 +43,43 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    
+    // Clear previous errors
+    setFormData((prev) => ({ ...prev, error: '' }))
 
     try {
-      const userData = await getUser(formData.email, formData.userPassword)
+      const userData = await getUser(formData.userEmail, formData.userPassword)
+      
+      console.log('Login response:', userData) // Debug log
 
-      if (userData.message === 'Login successful') {
-        setCookie('email', formData.email, { maxAge: 60 * 60 * 24 })
-        console.log('User logged in successfully:', userData)
-        router.push('/')
+      // Check if login was successful and accessToken exists
+      if (userData.message === 'Login successful' || userData.success) {
+        // Validate accessToken exists and is not undefined/null
+        if (userData.accessToken && userData.accessToken !== 'undefined') {
+          setCookie('accessToken', userData.accessToken, { 
+            maxAge: 60 * 60 * 24,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+          })
+          console.log('User logged in successfully:', userData)
+          router.push('/')
+        } else {
+          console.error('AccessToken is undefined or invalid:', userData.accessToken)
+          setFormData((prev) => ({ 
+            ...prev, 
+            error: 'Authentication failed: Invalid token received. Please try again.' 
+          }))
+        }
       } else {
-        setFormData((prev) => ({ ...prev, error: userData.message }))
+        // Handle login failure
+        const errorMessage = userData.message || userData.error || 'Login failed. Please check your credentials.'
+        setFormData((prev) => ({ ...prev, error: errorMessage }))
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Login error:', error)
       setFormData((prev) => ({
         ...prev,
-        error: 'An error occurred. Please try again later.',
+        error: 'Network error occurred. Please check your connection and try again.',
       }))
     } finally {
       setIsLoading(false)
@@ -76,7 +107,7 @@ export default function LoginPage() {
           </div>
           <CakeSlice className="w-10 h-10 text-amber-500 dark:text-indigo-400 transform hover:scale-110 transition-transform duration-300" />
         </div>
-        <p className="text-center text-indigo-600 dark:text-amber-300 mb-8">Welcome back, chef! Let's start cooking.</p>
+        <p className="text-center text-indigo-600 dark:text-amber-300 mb-8">Welcome back, chef! Let&apos;s start cooking.</p>
         {formData.error && (
           <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mb-4">
             <p className="text-red-500 dark:text-red-400 text-center text-sm">{formData.error}</p>
@@ -91,9 +122,9 @@ export default function LoginPage() {
               <input
                 type="email"
                 id="email"
-                value={formData.email}
+                value={formData.userEmail}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  setFormData((prev) => ({ ...prev, userEmail: e.target.value }))
                 }
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your email"

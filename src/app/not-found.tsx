@@ -1,6 +1,7 @@
   "use client";
 
   import Image from "next/image";
+import Link from "next/link";
 
   export default function NotFound() {
     return (
@@ -29,18 +30,18 @@
             </p>
 
             <div className="flex gap-4">
-              <a
+              <Link
                 href="/"
                 className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-amber-500 text-white rounded-xl hover:from-indigo-600 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
               >
                 Go Home
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/dashboard"
                 className="px-6 py-3 bg-gradient-to-r from-amber-500 to-indigo-500 text-white rounded-xl hover:from-amber-600 hover:to-indigo-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
               >
                 Go Back
-              </a>
+              </Link>
             </div>
           </div>
         </div>

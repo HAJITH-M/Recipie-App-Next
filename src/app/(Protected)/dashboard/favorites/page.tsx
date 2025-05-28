@@ -60,7 +60,7 @@ export default function FavoritesPage() {
       ) : favoriteRecipes.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            You haven't added any recipes to your favorites yet.
+          You don&apos;t have any favorites yet.
           </p>
         </div>
       ) : (

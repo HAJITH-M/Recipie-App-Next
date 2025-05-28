@@ -41,7 +41,7 @@ const RecipeCard = ({ recipe }: { recipe: RecipeProps }) => {
     if (recid) {
       setLike(true);
     }
-  }, []);
+  }, [recipe.id]);
 
   const handleRecipeIdRoute = () => {
     setIsLoading(true);

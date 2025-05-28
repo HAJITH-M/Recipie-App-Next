@@ -11,8 +11,8 @@ export const getUsernameFromToken = (): string | null => {
   return null;
 };
 
-export const handleLogout = (router: any, setUsername: (username: string | null) => void) => {
+export const handleLogout = (router: { push: (path: string) => void }, setUsername: (username: string | null) => void) => {
   deleteCookie('email'); // Updated to delete 'email' cookie
-  router.push('/');
-  setUsername(null);
-};
+  router.push('/')
+  setUsername(null)
+}
