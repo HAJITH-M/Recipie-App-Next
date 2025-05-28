@@ -191,7 +191,7 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
           <h1 className="text-3xl lg:text-3xl py-1 font-bold bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-purple-400 dark:to-lavender-400 bg-clip-text text-transparent">
             Other Recipes
           </h1>
-          <div className="space-y-4 scrollbar p-2 lg:p-3 lg:pt-2 max-h-[1400px] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-500/80 dark:scrollbar-thumb-purple-400/80 hover:scrollbar-thumb-indigo-600 dark:hover:scrollbar-thumb-purple-300 scrollbar-track-slate-200/50 dark:scrollbar-track-slate-900/50 scrollbar-thumb-rounded-full scrollbar-track-rounded-full transition-all duration-300 ease-in-out">
+          <div className="space-y-4 scrollbar p-2 lg:p-3 lg:pt-2 max-h-[1600px] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-500/80 dark:scrollbar-thumb-purple-400/80 hover:scrollbar-thumb-indigo-600 dark:hover:scrollbar-thumb-purple-300 scrollbar-track-slate-200/50 dark:scrollbar-track-slate-900/50 scrollbar-thumb-rounded-full scrollbar-track-rounded-full transition-all duration-300 ease-in-out">
             {otherRecipes.map((recipe) => (
               <RecipeCard key={recipe.id} recipe={{ ...recipe, cookTimeMinutes: recipe.cookTimeMinutes.toString() }} />
             ))}

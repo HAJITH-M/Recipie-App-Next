@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning >
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br bg-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} `}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem >
         <RouteGuard>{children}</RouteGuard>
       </ThemeProvider>

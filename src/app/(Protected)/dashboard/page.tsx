@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import fetcher from "../../../api/fetchers";
+import fetcher from "../../api/fetchers";
 import RecipeCard from "../../../components/RecipieCard";
 import { useState, useEffect } from "react";
 
@@ -45,7 +45,7 @@ export default function Dashboard() {
           <h1 className="text-3xl lg:text-5xl py-1 font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent">
             Recipe Collection
           </h1>
-          <div className="px-6 w-full sm:w-64">
+          <div className="px-6 w-full sm:w-64 lg:w-96">
             <div className=" relative">
             <input
               type="text"

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import ProtectedRoute from "./protectedRoute";
 
 // Define public routes that don't require authentication
-const publicRoutes = ["/Login", "/register", "/"]; // Add other public routes as needed
+const publicRoutes = ["/Login", "/register", "/", "/Signup", "api/registerapi"]; // Add other public routes as needed
 
 export default function RouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

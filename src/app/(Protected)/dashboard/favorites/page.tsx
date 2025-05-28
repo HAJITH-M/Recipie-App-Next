@@ -16,6 +16,7 @@ interface Recipe {
 export default function FavoritesPage() {
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch all recipes
@@ -28,6 +29,8 @@ export default function FavoritesPage() {
       } catch (error) {
         console.error('Error fetching recipes:', error);
         setAllRecipes([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -47,10 +50,14 @@ export default function FavoritesPage() {
   }, [allRecipes]);
 
   return (
-    <div className="container mx-auto  py-4">
-      <h1 className="text-3xl font-bold text-indigo-800 dark:text-white mb-8">Your Favorite Recipes</h1>
+    <div className="container mx-auto lg:py-2 p-6">
+      <h1 className="text-3xl lg:text-5xl p-1 font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent mb-8 inline-block">Your Favorite Recipes</h1>
       
-      {favoriteRecipes.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 dark:border-amber-400"></div>
+        </div>
+      ) : favoriteRecipes.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
             You haven't added any recipes to your favorites yet.

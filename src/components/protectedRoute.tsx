@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = getCookie('accessToken');
+    const token = getCookie('email');
 
     if (token) {
       setIsAuthenticated(true);

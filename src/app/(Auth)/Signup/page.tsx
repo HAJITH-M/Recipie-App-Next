@@ -1,14 +1,14 @@
 "use client"
 
-import { setCookie } from "cookies-next"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { User, Lock, ChefHat, CakeSlice } from "lucide-react"
+import { Mail, Lock, ChefHat, CakeSlice } from "lucide-react"
 import Image from "next/image"
+import { setCookie } from "cookies-next"
 
-const getUser = async (email: string, password: string) => {
-  const res = await fetch('/api/loginapi', {
+const registerUser = async (email: string, password: string) => {
+  const res = await fetch('http://localhost:3000/api/registerapi', { // Corrected URL
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -18,14 +18,15 @@ const getUser = async (email: string, password: string) => {
   })
 
   const data = await res.json()
-  return data
+  console.log(data)
+  return { data, status: res.status }
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
-    userPassword: '',
+    password: '',
     error: '',
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -35,14 +36,14 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const userData = await getUser(formData.email, formData.userPassword)
+      const { data, status } = await registerUser(formData.email, formData.password)
 
-      if (userData.message === 'Login successful') {
+      if (status === 201) {
+        console.log('User registered successfully:', data)
         setCookie('email', formData.email, { maxAge: 60 * 60 * 24 })
-        console.log('User logged in successfully:', userData)
-        router.push('/')
+        router.push('/login')
       } else {
-        setFormData((prev) => ({ ...prev, error: userData.message }))
+        setFormData((prev) => ({ ...prev, error: data.message || 'Registration failed. Please try again.' }))
       }
     } catch (error) {
       console.error('Error:', error)
@@ -76,7 +77,7 @@ export default function LoginPage() {
           </div>
           <CakeSlice className="w-10 h-10 text-amber-500 dark:text-indigo-400 transform hover:scale-110 transition-transform duration-300" />
         </div>
-        <p className="text-center text-indigo-600 dark:text-amber-300 mb-8">Welcome back, chef! Let's start cooking.</p>
+        <p className="text-center text-indigo-600 dark:text-amber-300 mb-8">Join the RecipeApp community, chef!</p>
         {formData.error && (
           <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mb-4">
             <p className="text-red-500 dark:text-red-400 text-center text-sm">{formData.error}</p>
@@ -99,7 +100,7 @@ export default function LoginPage() {
                 placeholder="Enter your email"
                 required
               />
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-indigo-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-indigo-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
             </div>
           </div>
           <div className="relative">
@@ -110,9 +111,9 @@ export default function LoginPage() {
               <input
                 type="password"
                 id="password"
-                value={formData.userPassword}
+                value={formData.password}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, userPassword: e.target.value }))
+                  setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your password"
@@ -129,15 +130,15 @@ export default function LoginPage() {
             {isLoading ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Preparing your kitchen...
+                Setting up your kitchen...
               </div>
             ) : (
-              "Start Cooking"
+              "Join the Kitchen"
             )}
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-400">
-          New to RecipeApp? <a href="/Signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</a>
+          Already a chef? <a href="/login" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Log in</a>
         </p>
       </div>
     </div>

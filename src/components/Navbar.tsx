@@ -33,7 +33,7 @@ export default function Navbar() {
   const menus = [
     { title: "Dashboard", path: "/dashboard" },
     { title: "Recipes", path: "/recipes" },
-    { title: "Categories", path: "/categories" },
+    { title: "Categories", path: "/dashboard/categories" },
     { title: "Favorites", path: "/dashboard/favorites" },
   ]
 
