@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { setCookie } from "cookies-next";
@@ -65,7 +64,7 @@ export default function LoginPage() {
             sameSite: "strict",
           });
           console.log("User logged in successfully:", userData);
-          router.push("/");
+          router.push("/dashboard");
         } else {
           console.error("Email is missing in response:", userData);
           setFormData((prev) => ({
@@ -79,10 +78,13 @@ export default function LoginPage() {
       }
     } catch (error: unknown) {
       console.error("Login error:", error);
-      setFormData((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : "Failed to connect to the server. Please try again.",
-      }));
+      const errorMessage =
+        error instanceof Error
+          ? error.message.includes("fetch")
+            ? "Unable to reach the server. Please check your connection."
+            : error.message
+          : "Failed to connect to the server. Please try again.";
+      setFormData((prev) => ({ ...prev, error: errorMessage }));
     } finally {
       setIsLoading(false);
     }

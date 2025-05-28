@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import bcrypt from "bcrypt";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = path.join(process.cwd(), "tmp"); // Use /tmp for Vercel
 const DATA_FILE = path.join(DATA_DIR, "users.json");
 
 const initializeDataFile = () => {
@@ -48,22 +49,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Email already registered" }, { status: 400 });
     }
 
-    users.push({ email, password });
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ email, password: hashedPassword });
     writeUsers(users);
 
     console.log("Registered users:", users);
 
     return NextResponse.json(
-      { message: "User registered successfully", accessToken: email },
+      { message: "User registered successfully", email },
       { status: 201 }
     );
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json({ message: "An error occurred during registration" }, { status: 500 });
   }
-}
-
-export async function GET() {
-  const users = readUsers();
-  return NextResponse.json({ message: "Route register working", users }, { status: 200 });
 }

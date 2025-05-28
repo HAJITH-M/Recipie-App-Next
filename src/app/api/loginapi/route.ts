@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import bcrypt from "bcrypt";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = path.join(process.cwd(), "tmp"); // Use /tmp for Vercel
 const DATA_FILE = path.join(DATA_DIR, "users.json");
 
 const initializeDataFile = () => {
@@ -46,7 +47,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password !== user.password) {
+    // Compare hashed password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
       return NextResponse.json(
         { message: "Invalid email or password" },
         { status: 401 }
@@ -67,15 +70,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  const users = readUsers();
-  return NextResponse.json(
-    {
-      message: "Login route working",
-      users,
-    },
-    { status: 200 }
-  );
 }

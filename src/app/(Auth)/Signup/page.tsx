@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Lock, ChefHat, CakeSlice } from "lucide-react";
 import Image from "next/image";
 import { setCookie } from "cookies-next";
+import Link from "next/link";
 
 const registerUser = async (email: string, password: string) => {
   try {
@@ -139,7 +140,7 @@ export default function SignupPage() {
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-400">
-          Already a chef? <a href="/login" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Log in</a>
+          Already a chef? <Link href="/Login" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Log in</Link>
         </p>
       </div>
     </div>
