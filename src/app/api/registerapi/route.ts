@@ -1,76 +1,77 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextApiRequest, NextApiResponse } from "next";
+import fs from "fs";
+import path from "path";
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'users.json');
+const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_FILE = path.join(DATA_DIR, "users.json");
 
-// Ensure data directory exists
-if (!fs.existsSync(path.join(process.cwd(), 'data'))) {
-  fs.mkdirSync(path.join(process.cwd(), 'data'));
-}
-
-// Initialize users from file or create empty array
-let users: { email: string; password: string }[] = [];
-try {
-  if (fs.existsSync(DATA_FILE)) {
-    users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-  } else {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users));
+// Ensure data directory and file exist
+const initializeDataFile = () => {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
   }
-} catch (error) {
-  console.error('Error reading users file:', error);
-}
+  if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+  }
+};
 
-export async function POST(request: Request) {
+// Read users from file
+const readUsers = (): { email: string; password: string }[] => {
   try {
-    const { email, password } = await request.json();
-
-    // Basic validation
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: 'Email and password are required' },
-        { status: 400 }
-      );
-    }
-
-    // Check if email already exists
-    if (users.find((user) => user.email === email)) {
-      return NextResponse.json(
-        { message: 'Email already registered' },
-        { status: 400 }
-      );
-    }
-
-    // Store user data and persist to file
-    users.push({ email, password });
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users));
-
-    // Log the stored users (for debugging)
-    console.log('Registered users:', users);
-
-    return NextResponse.json(
-      { 
-        message: 'User registered successfully',
-        accessToken: email 
-      },
-      { status: 201 }
-    );
+    initializeDataFile();
+    const data = fs.readFileSync(DATA_FILE, "utf-8");
+    return JSON.parse(data);
   } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json(
-      { message: 'An error occurred during registration' },
-      { status: 500 }
-    );
+    console.error("Error reading users file:", error);
+    return [];
   }
-}
+};
 
-// Optional: Handle other methods to prevent 405 errors
-export async function GET() {
-  return NextResponse.json(
-    { 
-      message: 'route register working',
-      users: users 
-    },
-    { status: 200 }
-  );
+// Write users to file
+const writeUsers = (users: { email: string; password: string }[]) => {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+  } catch (error) {
+    console.error("Error writing to users file:", error);
+    throw new Error("Failed to save user data");
+  }
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "POST") {
+    try {
+      const { email, password } = req.body;
+
+      // Basic validation
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+
+      const users = readUsers();
+
+      // Check if email already exists
+      if (users.find((user) => user.email === email)) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      // Store user data
+      users.push({ email, password });
+      writeUsers(users);
+
+      console.log("Registered users:", users);
+
+      return res.status(201).json({
+        message: "User registered successfully",
+        accessToken: email,
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      return res.status(500).json({ message: "An error occurred during registration" });
+    }
+  } else if (req.method === "GET") {
+    const users = readUsers();
+    return res.status(200).json({ message: "Route register working", users });
+  } else {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
 }

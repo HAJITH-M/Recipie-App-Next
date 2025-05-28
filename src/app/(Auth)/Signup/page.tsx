@@ -1,60 +1,65 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Mail, Lock, ChefHat, CakeSlice } from "lucide-react"
-import Image from "next/image"
-import { setCookie } from "cookies-next"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Mail, Lock, ChefHat, CakeSlice } from "lucide-react";
+import Image from "next/image";
+import { setCookie } from "cookies-next";
 
 const registerUser = async (email: string, password: string) => {
-  const res = await fetch('http://localhost:3000/api/registerapi', { // Corrected URL
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  })
+  try {
+    const res = await fetch("http://localhost:3000/api/registerapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-  const data = await res.json()
-  console.log(data)
-  return { data, status: res.status }
-}
+    const data = await res.json();
+    console.log("API Response:", data);
+    return { data, status: res.status };
+  } catch (error) {
+    console.error("Fetch Error:", error);
+    throw error;
+  }
+};
 
 export default function SignupPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    error: '',
-  })
-  const [isLoading, setIsLoading] = useState(false)
+    email: "",
+    password: "",
+    error: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const { data, status } = await registerUser(formData.email, formData.password)
+      const { data, status } = await registerUser(formData.email, formData.password);
 
       if (status === 201) {
-        console.log('User registered successfully:', data)
-        setCookie('email', formData.email, { maxAge: 60 * 60 * 24 })
-        router.push('/login')
+        console.log("User registered successfully:", data);
+        setCookie("email", formData.email, { maxAge: 60 * 60 * 24 });
+        router.push("/Login");
       } else {
-        setFormData((prev) => ({ ...prev, error: data.message || 'Registration failed. Please try again.' }))
+        setFormData((prev) => ({
+          ...prev,
+          error: data.message || "Registration failed. Please try again.",
+        }));
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error("Registration Error:", error);
       setFormData((prev) => ({
         ...prev,
-        error: 'An error occurred. Please try again later.',
-      }))
+        error: "Failed to connect to the server. Please try again later.",
+      }));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-amber-50 dark:bg-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -93,9 +98,7 @@ export default function SignupPage() {
                 type="email"
                 id="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your email"
                 required
@@ -112,9 +115,7 @@ export default function SignupPage() {
                 type="password"
                 id="password"
                 value={formData.password}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your password"
                 required
@@ -142,5 +143,5 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
-  )
+  );
 }
