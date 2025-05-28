@@ -1,14 +1,6 @@
 [
   {
-    "email": "test1@gmail.com",
-    "password": "123"
-  },
-  {
-    "email": "test2@gmail.com",
-    "password": "123"
-  },
-  {
     "email": "hajithm2003@gmail.com",
-    "password": "123"
+    "password": "$2b$10$d3ZObA42aR1nZHt2nozEVee/fY88APziP48mX/f02Z2224hle0UcW"
   }
 ]

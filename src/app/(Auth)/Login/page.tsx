@@ -16,6 +16,7 @@ interface LoginResponse {
 
 const getUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
+    console.log("Sending login request with:", { email, password: "[REDACTED]" });
     const res = await fetch("/api/loginapi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -24,6 +25,7 @@ const getUser = async (email: string, password: string): Promise<LoginResponse> 
 
     if (!res.ok) {
       const errorData = await res.json();
+      console.log("API error response:", errorData);
       throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
     }
 
