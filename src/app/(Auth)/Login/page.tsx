@@ -166,7 +166,7 @@ export default function LoginPage() {
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-300">
-          New to RecipeApp? <Link href="/signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</Link>
+          New to RecipeApp? <Link href="/Signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</Link>
         </p>
       </div>
     </div>
