@@ -2,30 +2,33 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const DATA_FILE = path.join(process.cwd(), "data", "users.json");
+const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_FILE = path.join(DATA_DIR, "users.json");
 
-// Ensure data directory exists
-if (!fs.existsSync(path.join(process.cwd(), "data"))) {
-  fs.mkdirSync(path.join(process.cwd(), "data"));
-}
-
-// Initialize users from file or create empty array
-let users: { email: string; password: string }[] = [];
-try {
-  if (fs.existsSync(DATA_FILE)) {
-    users = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-  } else {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users));
+const initializeDataFile = () => {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
   }
-} catch (error) {
-  console.error("Error reading users file:", error);
-}
+  if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+  }
+};
+
+const readUsers = (): { email: string; password: string }[] => {
+  try {
+    initializeDataFile();
+    const data = fs.readFileSync(DATA_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading users file:", error);
+    return [];
+  }
+};
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    // Basic validation
     if (!email || !password) {
       return NextResponse.json(
         { message: "Email and password are required" },
@@ -33,11 +36,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user with matching email
+    const users = readUsers();
     const user = users.find((user) => user.email === email);
 
-    // Check if user exists and password matches
-    if (!user || user.password !== password) {
+    if (!user) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
+
+    if (password !== user.password) {
       return NextResponse.json(
         { message: "Invalid email or password" },
         { status: 401 }
@@ -45,10 +54,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Login successful", 
-        email: email
+      {
+        message: "Login successful",
+        email: email,
       },
-
       { status: 200 }
     );
   } catch (error) {
@@ -61,10 +70,11 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
+  const users = readUsers();
   return NextResponse.json(
     {
       message: "Login route working",
-      users: users,
+      users,
     },
     { status: 200 }
   );

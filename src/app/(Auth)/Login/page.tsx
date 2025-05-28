@@ -1,90 +1,85 @@
-"use client"
+"use client";
 
-import { setCookie } from "cookies-next"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { User, Lock, ChefHat, CakeSlice } from "lucide-react"
-import Image from "next/image"
+import { setCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { User, Lock, ChefHat, CakeSlice } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 const getUser = async (email: string, password: string) => {
   try {
-    const res = await fetch('/api/loginapi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    })
+    const res = await fetch("/api/loginapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
     if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`)
+      const errorData = await res.json();
+      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
     }
 
-    const data = await res.json()
-    console.log('API Response:', data) // Debug log
-    return data
+    const data = await res.json();
+    console.log("API Response:", data);
+    return data;
   } catch (error) {
-    console.error('API call failed:', error)
-    throw error
+    console.error("API call failed:", error);
+    throw error;
   }
-}
+};
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    userEmail: '',
-    userPassword: '',
-    error: '',
-  })
-  const [isLoading, setIsLoading] = useState(false)
+    email: "",
+    password: "",
+    error: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
-    // Clear previous errors
-    setFormData((prev) => ({ ...prev, error: '' }))
+    e.preventDefault();
+    setIsLoading(true);
+    setFormData((prev) => ({ ...prev, error: "" }));
 
     try {
-      const userData = await getUser(formData.userEmail, formData.userPassword)
-      
-      console.log('Login response:', userData) // Debug log
+      const userData = await getUser(formData.email, formData.password);
 
-      // Check if login was successful and accessToken exists
-      if (userData.message === 'Login successful' || userData.success) {
-        // Validate accessToken exists and is not undefined/null
-        if (userData.accessToken && userData.accessToken !== 'undefined') {
-          setCookie('accessToken', userData.accessToken, { 
-            maxAge: 60 * 60 * 24,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-          })
-          console.log('User logged in successfully:', userData)
-          router.push('/')
+      console.log("Login response:", userData);
+
+      if (userData.message === "Login successful") {
+        if (userData.email) {
+          // Set the 'email' cookie using the email from the response
+          setCookie("email", userData.email, {
+            maxAge: 60 * 60 * 24, // 1 day
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+          });
+          console.log("User logged in successfully:", userData);
+          router.push("/");
         } else {
-          console.error('AccessToken is undefined or invalid:', userData.accessToken)
-          setFormData((prev) => ({ 
-            ...prev, 
-            error: 'Authentication failed: Invalid token received. Please try again.' 
-          }))
+          console.error("Email is missing in response:", userData);
+          setFormData((prev) => ({
+            ...prev,
+            error: "Authentication failed: No email received. Please try again.",
+          }));
         }
       } else {
-        // Handle login failure
-        const errorMessage = userData.message || userData.error || 'Login failed. Please check your credentials.'
-        setFormData((prev) => ({ ...prev, error: errorMessage }))
+        const errorMessage = userData.message || "Login failed. Please check your credentials.";
+        setFormData((prev) => ({ ...prev, error: errorMessage }));
       }
-    } catch (error) {
-      console.error('Login error:', error)
+    } catch (error: any) {
+      console.error("Login error:", error);
       setFormData((prev) => ({
         ...prev,
-        error: 'Network error occurred. Please check your connection and try again.',
-      }))
+        error: error.message || "Failed to connect to the server. Please try again.",
+      }));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-amber-50 dark:bg-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -122,10 +117,8 @@ export default function LoginPage() {
               <input
                 type="email"
                 id="email"
-                value={formData.userEmail}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, userEmail: e.target.value }))
-                }
+                value={formData.email}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your email"
                 required
@@ -141,10 +134,8 @@ export default function LoginPage() {
               <input
                 type="password"
                 id="password"
-                value={formData.userPassword}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, userPassword: e.target.value }))
-                }
+                value={formData.password}
+                onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                 className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
                 placeholder="Enter your password"
                 required
@@ -167,10 +158,10 @@ export default function LoginPage() {
             )}
           </Button>
         </form>
-        <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-400">
-          New to RecipeApp? <a href="/Signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</a>
+        <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-300">
+          New to RecipeApp? <Link href="/signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
