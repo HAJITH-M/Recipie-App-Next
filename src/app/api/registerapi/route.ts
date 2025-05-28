@@ -1,39 +1,6 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { sql } from '@vercel/postgres';
 import bcrypt from "bcrypt";
-
-const DATA_DIR = path.join(process.cwd(), "tmp"); // Use /tmp for Vercel
-const DATA_FILE = path.join(DATA_DIR, "users.json");
-
-const initializeDataFile = () => {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify([]));
-  }
-};
-
-const readUsers = (): { email: string; password: string }[] => {
-  try {
-    initializeDataFile();
-    const data = fs.readFileSync(DATA_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error reading users file:", error);
-    return [];
-  }
-};
-
-const writeUsers = (users: { email: string; password: string }[]) => {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-  } catch (error) {
-    console.error("Error writing to users file:", error);
-    throw new Error("Failed to save user data");
-  }
-};
 
 export async function POST(request: Request) {
   try {
@@ -43,18 +10,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Email and password are required" }, { status: 400 });
     }
 
-    const users = readUsers();
+    // Check if user already exists
+    const existingUser = await sql`
+      SELECT email FROM users WHERE email = ${email}
+    `;
 
-    if (users.find((user) => user.email === email)) {
+    if (existingUser.rows.length > 0) {
       return NextResponse.json({ message: "Email already registered" }, { status: 400 });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    users.push({ email, password: hashedPassword });
-    writeUsers(users);
 
-    console.log("Registered users:", users);
+    // Insert new user
+    await sql`
+      INSERT INTO users (email, password) VALUES (${email}, ${hashedPassword})
+    `;
 
     return NextResponse.json(
       { message: "User registered successfully", email },
