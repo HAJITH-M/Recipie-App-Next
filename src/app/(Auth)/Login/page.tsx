@@ -1,177 +1,154 @@
-"use client";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { sha256 } from 'js-sha256'; // Browser-compatible hashing
+import { setCookie } from 'cookies-next'; // Import setCookie from cookies-next
+import Image from 'next/image';
 
-import { setCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { User, Lock, ChefHat, CakeSlice } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-
-// Define the expected shape of the API response
-interface LoginResponse {
-  message: string;
-  email?: string;
-}
-
-const getUser = async (email: string, password: string): Promise<LoginResponse> => {
-  try {
-    console.log("Sending login request with:", { email, password: "[REDACTED]" });
-    const res = await fetch("/api/loginapi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.log("API error response:", errorData);
-      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
-    }
-
-    const data: LoginResponse = await res.json();
-    console.log("API Response:", data);
-    return data;
-  } catch (error) {
-    console.error("API call failed:", error);
-    throw error;
-  }
-};
-
-export default function LoginPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    error: "",
-  });
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setFormData((prev) => ({ ...prev, error: "" }));
-
+    setError('');
+    
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+    
     try {
-      const userData = await getUser(formData.email, formData.password);
-
-      console.log("Login response:", userData);
-
-      if (userData.message === "Login successful") {
-        if (userData.email) {
-          // Set the 'email' cookie using the email from the response
-          setCookie("email", userData.email, {
-            maxAge: 60 * 60 * 24, // 1 day
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-          });
-          console.log("User logged in successfully:", userData);
-          router.push("/dashboard");
-        } else {
-          console.error("Email is missing in response:", userData);
-          setFormData((prev) => ({
-            ...prev,
-            error: "Authentication failed: No email received. Please try again.",
-          }));
-        }
-      } else {
-        const errorMessage = userData.message || "Login failed. Please check your credentials.";
-        setFormData((prev) => ({ ...prev, error: errorMessage }));
+      setIsLoading(true);
+      // Get users from localStorage
+      const usersJSON = localStorage.getItem('users') || '[]';
+      const users = JSON.parse(usersJSON);
+      
+      // Find user by email
+      const user = users.find((u: { email: string }) => u.email === email);
+      
+      if (!user) {
+        setError('Invalid email or password');
+        setIsLoading(false);
+        return;
       }
-    } catch (error: unknown) {
-      console.error("Login error:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message.includes("fetch")
-            ? "Unable to reach the server. Please check your connection."
-            : error.message
-          : "Failed to connect to the server. Please try again.";
-      setFormData((prev) => ({ ...prev, error: errorMessage }));
-    } finally {
+      
+      // Compare password with hashed password using the same salt
+      const hashedPassword = sha256(password + user.salt);
+      const passwordMatch = hashedPassword === user.password;
+      
+      if (!passwordMatch) {
+        setError('Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Store user info in localStorage for authentication state
+      localStorage.setItem('currentUser', JSON.stringify({ email: user.email }));
+      
+      // Set email in cookie using cookies-next
+      setCookie('email', user.email, {
+        maxAge: 60 * 60 * 24, // 1 day in seconds
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      
+      // Redirect to dashboard or home page with a slight delay for animation
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
+    } catch (error) {
+      setError('Login failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-amber-50 dark:bg-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white/80 dark:bg-amber-950/50 rounded-xl shadow-lg border border-amber-200 dark:border-amber-800/50 p-8 transform hover:scale-[1.02] transition-transform duration-300 backdrop-blur-sm">
-        <div className="flex items-center justify-center mb-6 space-x-2">
-          <ChefHat className="w-10 h-10 text-indigo-500 dark:text-amber-400 transform hover:scale-110 transition-transform duration-300" />
-          <div className="flex flex-col items-center justify-center mb-8 space-y-4">
-            <div className="relative w-24 h-24 transform hover:scale-105 transition-transform duration-300">
-              <Image
-                src="https://ik.imagekit.io/k5gvskw6y/image.png"
-                alt="RecipeApp Logo"
-                fill
-                className="object-contain"
-                priority
-              />
+    <div className="min-h-screen flex items-center justify-center bg-amber-50 dark:bg-slate-900 p-4">
+      <div className="opacity-0 animate-fade-in w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-amber-200 dark:border-slate-700 overflow-hidden">
+        <div className="p-8">
+          <div className="flex justify-center mb-8">
+            <Image src="https://ik.imagekit.io/k5gvskw6y/image.png" alt="Logo" width={64} height={64} className="h-16 w-auto mb-4 rounded-full" />
+          </div>
+          
+          <h1 className="text-2xl font-bold mb-6 text-center text-indigo-800 dark:text-slate-200">Welcome Back</h1>
+          
+          {error && (
+            <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl mb-6 text-sm">
+              {error}
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-indigo-500 to-amber-500 dark:from-indigo-600 dark:to-amber-600 bg-clip-text text-transparent inline-block transform hover:scale-105 transition-transform duration-300">
-              RecipeApp
-            </h1>
-          </div>
-          <CakeSlice className="w-10 h-10 text-amber-500 dark:text-indigo-400 transform hover:scale-110 transition-transform duration-300" />
-        </div>
-        <p className="text-center text-indigo-600 dark:text-amber-300 mb-8">Welcome back, chef! Let's start cooking.</p>
-        {formData.error && (
-          <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mb-4">
-            <p className="text-red-500 dark:text-red-400 text-center text-sm">{formData.error}</p>
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <label htmlFor="email" className="block text-sm font-medium text-indigo-800 dark:text-amber-300 mb-1">
-              Email
-            </label>
-            <div className="relative group">
-              <input
-                type="email"
-                id="email"
-                value={formData.email}
-                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
-                placeholder="Enter your email"
-                required
-              />
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-indigo-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-            </div>
-          </div>
-          <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-indigo-800 dark:text-amber-300 mb-1">
-              Password
-            </label>
-            <div className="relative group">
-              <input
-                type="password"
-                id="password"
-                value={formData.password}
-                onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                className="w-full px-4 py-2 pl-10 rounded-lg border border-amber-200 dark:border-amber-800 bg-white/50 dark:bg-amber-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-amber-400 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-amber-600"
-                placeholder="Enter your password"
-                required
-              />
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-indigo-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-            </div>
-          </div>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full px-4 py-2 bg-gradient-to-r from-indigo-500 to-amber-500 text-white rounded-lg hover:from-indigo-600 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Preparing your kitchen...
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Email</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-amber-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input 
+                  type="email" 
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 p-3 bg-amber-50 dark:bg-slate-700 border border-amber-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-slate-400 focus:border-transparent transition-all duration-300"
+                  placeholder="your@email.com"
+                  required
+                />
               </div>
-            ) : (
-              "Start Cooking"
-            )}
-          </Button>
-        </form>
-        <p className="mt-6 text-center text-sm text-indigo-600 dark:text-amber-300">
-          New to RecipeApp? <Link href="/Signup" className="underline hover:text-indigo-800 dark:hover:text-amber-200">Create an account</Link>
-        </p>
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-amber-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 p-3 bg-amber-50 dark:bg-slate-700 border border-amber-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-slate-400 focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full px-4 py-3 cursor-pointer bg-gradient-to-r from-indigo-500 to-amber-500 text-white rounded-xl hover:from-indigo-600 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Logging in...
+                </div>
+              ) : (
+                "Login"
+              )}
+            </button>
+          </form>
+          
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 dark:text-slate-400">
+              Don't have an account?{" "}
+              <a href="/Signup" className="font-medium text-indigo-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-slate-200 transition-colors">
+                Sign up
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,8 @@ export const getUsernameFromToken = (): string | null => {
 
 export const handleLogout = (router: { push: (path: string) => void }, setUsername: (username: string | null) => void) => {
   deleteCookie('email'); // Updated to delete 'email' cookie
+
+  // localStorage.removeItem('users'); // Clear user JSON from localStorage
   router.push('/')
   setUsername(null)
 }
