@@ -137,7 +137,7 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
                   {recipe.ingredients.map((ingredient, index) => (
                     <div key={index} className="relative">
                       <div className="absolute -left-5 sm:-left-5 top-3 w-3 h-3 sm:w-3 sm:h-3 bg-indigo-500 rounded-full shadow-md shadow-indigo-500/50"></div>
-                      <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 transform hover:-translate-x-1 hover:translate-y-0.5 transition-transform">
+                      <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-xl shadow-sm hover:shadow-md transform hover:-translate-x-1 hover:translate-y-0.5 transition-all duration-300">
                         <span className="text-sm sm:text-base text-slate-700 dark:text-slate-200">{ingredient}</span>
                       </div>
                     </div>
