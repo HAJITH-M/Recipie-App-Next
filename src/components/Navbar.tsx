@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
-import { getUsernameFromToken, handleLogout } from "@/lib/auth"
+import { getUsernameFromToken, handleLogout } from "@/app/lib/auth"
 
 export default function Navbar() {
   const router = useRouter()

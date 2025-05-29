@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import RecipeCard from '@/components/RecipieCard';
+import { RecipeProps } from '@/app/types/types';
 
-interface Recipe {
-  id: number;
-  name: string;
-  cuisine: string;
-  image: string;
-  caloriesPerServing: number;
-  difficulty: string;
-  cookTimeMinutes: string;
-}
+
 
 export default function FavoritesPage() {
-  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
-  const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<RecipeProps[]>([]);
+  const [allRecipes, setAllRecipes] = useState<RecipeProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

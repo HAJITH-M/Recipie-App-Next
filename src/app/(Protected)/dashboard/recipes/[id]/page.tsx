@@ -1,24 +1,6 @@
+import { RecipeProps } from "@/app/types/types";
 import RecipeCard from "@/components/RecipieCard";
 import Image from "next/image";
-
-// Define the Recipe interface with consistent types
-interface Recipe {
-  id: number;
-  name: string;
-  cuisine: string;
-  image: string;
-  caloriesPerServing: number;
-  difficulty: string;
-  cookTimeMinutes: string;
-  ingredients: string[];
-  instructions: string[];
-  mealType: string[];
-  rating: number;
-  reviewCount: number;
-  servings: number;
-  tags: string[];
-  prepTimeMinutes: number;
-}
 
 async function getRecipe(id: string) {
   const res = await fetch(`https://dummyjson.com/recipes/${id}`, { cache: "force-cache" });
@@ -30,21 +12,21 @@ async function getOtherRecipes(currentId: string) {
   const res = await fetch("https://dummyjson.com/recipes", { cache: "force-cache" });
   if (!res.ok) throw new Error("Failed to fetch recipes");
   const data = await res.json();
-  return data.recipes.filter((recipe: Recipe) => recipe.id.toString() !== currentId);
+  return data.recipes.filter((recipe: RecipeProps) => recipe.id.toString() !== currentId);
 }
 
 export async function generateStaticParams() {
   const res = await fetch("https://dummyjson.com/recipes", { cache: "force-cache" });
   const data = await res.json();
-  return data.recipes.map((recipe: Recipe) => ({
+  return data.recipes.map((recipe: RecipeProps) => ({
     id: recipe.id.toString(),
   }));
 }
 
 export default async function RecipeDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const recipe: Recipe = await getRecipe(resolvedParams.id);
-  const otherRecipes: Recipe[] = await getOtherRecipes(resolvedParams.id);
+  const recipe: RecipeProps = await getRecipe(resolvedParams.id);
+  const otherRecipes: RecipeProps[] = await getOtherRecipes(resolvedParams.id);
 
   return (
     <div className="min-h-screen bg-[url('/culinary-pattern.svg')] dark:bg-slate-900 pt-2 px-3 lg:pt-6 lg:px-8">

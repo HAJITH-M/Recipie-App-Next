@@ -2,20 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import RecipeCard from '@/components/RecipieCard';
-
-interface Recipe {
-  id: number;
-  name: string;
-  cuisine: string;
-  image: string;
-  caloriesPerServing: number;
-  difficulty: string;
-  cookTimeMinutes: string;
-  mealType: string[];
-}
+import { RecipeProps } from '@/app/types/types';
 
 export default function CategoriesPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeProps[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +19,7 @@ export default function CategoriesPage() {
         
         // Extract unique categories from recipes
         const uniqueCategories = Array.from(new Set(
-          data.recipes.flatMap((recipe: Recipe) => recipe.mealType)
+          data.recipes.flatMap((recipe: RecipeProps) => recipe.mealType)
         ));
         setCategories(['all', ...uniqueCategories as string[]]);
       } catch (error) {

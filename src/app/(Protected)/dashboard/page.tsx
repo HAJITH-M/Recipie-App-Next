@@ -4,16 +4,9 @@ import useSWR from "swr";
 import fetcher from "../../api/fetchers";
 import RecipeCard from "../../../components/RecipieCard";
 import { useState, useEffect } from "react";
+import { RecipeProps } from "@/app/types/types";
 
-interface RecipeProps {
-  id: number;
-  name: string;
-  cuisine: string;
-  image: string;
-  caloriesPerServing: number;
-  difficulty: string;
-  cookTimeMinutes: string;
-}
+
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
