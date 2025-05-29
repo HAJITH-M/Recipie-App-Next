@@ -19,11 +19,11 @@ export const metadata: Metadata = {
   description: "Recipe App",
   icons: {
     icon: {
-      url: "https://ik.imagekit.io/k5gvskw6y/image.png?tr=w-32,h-32",
+      url: "https://ik.imagekit.io/k5gvskw6y/image.png?tr=w-32,h-32,r-max",
       type: "image/png",
     },
     apple: {
-      url: "https://ik.imagekit.io/k5gvskw6y/image.png?tr=w-180,h-180",
+      url: "https://ik.imagekit.io/k5gvskw6y/image.png?tr=w-180,h-180,r-max",
       type: "image/png",
     },
   },
